@@ -19,14 +19,26 @@ from __future__ import print_function
 
 import copy
 import re
+import sre_constants
 import traceback
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 
 HELP_INDENT = "  "
 
-EXIT_TOKEN_KEY = "exit_token"
 EXPLICIT_USER_EXIT = "explicit_user_exit"
+REGEX_MATCH_LINES_KEY = "regex_match_lines"
+
+
+class CommandLineExit(Exception):
+
+  def __init__(self, exit_token=None):
+    Exception.__init__(self)
+    self._exit_token = exit_token
+
+  @property
+  def exit_token(self):
+    return self._exit_token
 
 
 class RichTextLines(object):
@@ -39,10 +51,6 @@ class RichTextLines(object):
   This is not to be confused with Rich Text Format (RTF). This class is for text
   lines only.
   """
-
-  # A RichTextLines object can have the following key EXIT_TOKEN_KEY in its
-  # annotations field. The CLI receiving this RichTextLines may use this field
-  # to exit the command loop while returning a proper return value.
 
   def __init__(self, lines, font_attr_segs=None, annotations=None):
     """Constructor of RichTextLines.
@@ -103,6 +111,49 @@ class RichTextLines(object):
   def annotations(self):
     return self._annotations
 
+  def num_lines(self):
+    return len(self._lines)
+
+  def slice(self, begin, end):
+    """Slice a RichTextLines object.
+
+    The object itself is not changed. A sliced instance is returned.
+
+    Args:
+      begin: (int) Beginning line index (inclusive). Must be >= 0.
+      end: (int) Ending line index (exclusive). Must be >= 0.
+
+    Returns:
+      (RichTextLines) Sliced output instance of RichTextLines.
+
+    Raises:
+      ValueError: If begin or end is negative.
+    """
+
+    if begin < 0 or end < 0:
+      raise ValueError("Encountered negative index.")
+
+    # Copy lines.
+    lines = self.lines[begin:end]
+
+    # Slice font attribute segments.
+    font_attr_segs = {}
+    for key in self.font_attr_segs:
+      if key >= begin and key < end:
+        font_attr_segs[key - begin] = self.font_attr_segs[key]
+
+    # Slice annotations.
+    annotations = {}
+    for key in self.annotations:
+      if not isinstance(key, int):
+        # Annotations can contain keys that are not line numbers.
+        annotations[key] = self.annotations[key]
+      elif key >= begin and key < end:
+        annotations[key - begin] = self.annotations[key]
+
+    return RichTextLines(
+        lines, font_attr_segs=font_attr_segs, annotations=annotations)
+
 
 def regex_find(orig_screen_output, regex, font_attr):
   """Perform regex match in rich text lines.
@@ -122,14 +173,21 @@ def regex_find(orig_screen_output, regex, font_attr):
 
   Returns:
     A modified copy of orig_screen_output.
+
+  Raises:
+    ValueError: If input str regex is not a valid regular expression.
   """
   new_screen_output = RichTextLines(
       orig_screen_output.lines,
       font_attr_segs=copy.deepcopy(orig_screen_output.font_attr_segs),
       annotations=orig_screen_output.annotations)
 
-  re_prog = re.compile(regex)
+  try:
+    re_prog = re.compile(regex)
+  except sre_constants.error:
+    raise ValueError("Invalid regular expression: \"%s\"" % regex)
 
+  regex_match_lines = []
   for i in xrange(len(new_screen_output.lines)):
     line = new_screen_output.lines[i]
     find_it = re_prog.finditer(line)
@@ -145,7 +203,9 @@ def regex_find(orig_screen_output, regex, font_attr):
         new_screen_output.font_attr_segs[i].extend(match_segs)
         new_screen_output.font_attr_segs[i] = sorted(
             new_screen_output.font_attr_segs[i], key=lambda x: x[0])
+      regex_match_lines.append(i)
 
+  new_screen_output.annotations[REGEX_MATCH_LINES_KEY] = regex_match_lines
   return new_screen_output
 
 
@@ -233,6 +293,11 @@ def wrap_rich_text_lines(inp, cols):
 
       out.lines.extend(wlines)
 
+  # Copy over keys of annotation that are not row indices.
+  for key in inp.annotations:
+    if not isinstance(key, int):
+      out.annotations[key] = inp.annotations[key]
+
   return out
 
 
@@ -303,7 +368,12 @@ class CommandHandlerRegistry(object):
         where argv is the argument vector (excluding the command prefix) and
           screen_info is a dictionary containing information about the screen,
           such as number of columns, e.g., {"cols": 100}.
-        The callable should return a RichTextLines object.
+        The callable should return:
+          1) a RichTextLines object representing the screen output.
+
+        The callable can also raise an exception of the type CommandLineExit,
+        which if caught by the command-line interface, will lead to its exit.
+        The exception can optionally carry an exit token of arbitrary type.
       help_info: A help string.
       prefix_aliases: Aliases for the command prefix, as a list of str. E.g.,
         shorthands for the command prefix: ["p", "pr"]
@@ -316,9 +386,6 @@ class CommandHandlerRegistry(object):
         4) elements in prefix_aliases clash with existing aliases.
         5) help_info is not a str.
     """
-
-    # TODO(cais): Refactor handler specification so that it returns not only
-    #   a RichTextLine object, but also an exit token.
 
     if not prefix:
       raise ValueError("Empty command prefix")
@@ -373,6 +440,9 @@ class CommandHandlerRegistry(object):
         2) no command handler is registered for the command prefix, or
         3) the handler is found for the prefix, but it fails to return a
           RichTextLines or raise any exception.
+      CommandLineExit:
+        If the command handler raises this type of exception, tihs method will
+        simply pass it along.
     """
     if not prefix:
       raise ValueError("Prefix is empty")
@@ -385,6 +455,8 @@ class CommandHandlerRegistry(object):
     handler = self._handlers[resolved_prefix]
     try:
       output = handler(argv, screen_info=screen_info)
+    except CommandLineExit as e:
+      raise e
     except SystemExit as e:
       # Special case for syntax errors caught by argparse.
       lines = ["Syntax error for command: %s" % prefix,

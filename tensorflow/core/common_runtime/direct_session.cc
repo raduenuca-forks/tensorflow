@@ -23,7 +23,6 @@ limitations under the License.
 #include "tensorflow/core/common_runtime/device_factory.h"
 #include "tensorflow/core/common_runtime/executor.h"
 #include "tensorflow/core/common_runtime/function.h"
-#include "tensorflow/core/common_runtime/gpu/gpu_tracer.h"
 #include "tensorflow/core/common_runtime/graph_optimizer.h"
 #include "tensorflow/core/common_runtime/memory_types.h"
 #include "tensorflow/core/common_runtime/simple_placer.h"
@@ -56,6 +55,10 @@ limitations under the License.
 #include "tensorflow/core/platform/mutex.h"
 #include "tensorflow/core/platform/types.h"
 #include "tensorflow/core/util/device_name_utils.h"
+
+#if GOOGLE_CUDA
+#include "tensorflow/core/common_runtime/gpu/gpu_tracer.h"
+#endif  // GOOGLE_CUDA
 
 namespace tensorflow {
 
@@ -435,20 +438,32 @@ Status DirectSession::Run(const RunOptions& run_options,
   }
 
   const bool do_trace = (run_options.trace_level() > RunOptions::NO_TRACE);
-  const int64 build_cost_model =
-      options_.config.graph_options().build_cost_model();
-  if (do_trace || build_cost_model > 0) {
+
+  bool update_cost_model = false;
+  if (options_.config.graph_options().build_cost_model() > 0) {
+    const int64 build_cost_model_every =
+        options_.config.graph_options().build_cost_model();
+    const int64 build_cost_model_after =
+        options_.config.graph_options().build_cost_model_after();
+    update_cost_model =
+        ((executors_and_keys->step_count + 1 - build_cost_model_after) %
+             build_cost_model_every ==
+         0);
+  }
+  if (do_trace || update_cost_model) {
     run_state.collector.reset(
         new StepStatsCollector(run_metadata->mutable_step_stats()));
     args.stats_collector = run_state.collector.get();
   }
 
+#if GOOGLE_CUDA
   std::unique_ptr<GPUTracer> tracer;
   if (run_options.trace_level() >= RunOptions::HARDWARE_TRACE) {
     tracer.reset(CreateGPUTracer());
     // tracer will be NULL on non-GPU platforms.
     if (tracer) tracer->Start();
   }
+#endif  // GOOGLE_CUDA
 
   for (const auto& item : executors_and_keys->items) {
     item.executor->RunAsync(args, barrier->Get());
@@ -458,10 +473,12 @@ Status DirectSession::Run(const RunOptions& run_options,
                                       ? run_options.timeout_in_ms()
                                       : operation_timeout_in_ms_);
 
+#if GOOGLE_CUDA
   if (tracer) {
     tracer->Stop();
     tracer->Collect(args.stats_collector);
   }
+#endif  // GOOGLE_CUDA
 
   {
     mutex_lock l(run_state.mu_);
@@ -479,7 +496,7 @@ Status DirectSession::Run(const RunOptions& run_options,
   // Build and return the cost model as instructed.
   mutex_lock l(executor_lock_);
   ++executors_and_keys->step_count;
-  if (executors_and_keys->step_count == build_cost_model) {
+  if (update_cost_model) {
     // Build the cost model
     std::unordered_map<string, const Graph*> device_to_graph;
     for (const PerPartitionExecutorsAndLib& partition :
@@ -830,10 +847,11 @@ Status DirectSession::GetOrCreateExecutors(
   std::vector<string> tn_sorted(target_nodes.begin(), target_nodes.end());
   std::sort(tn_sorted.begin(), tn_sorted.end());
 
-  const string key = strings::StrCat(str_util::Join(inputs_sorted, ","), "->",
-                                     str_util::Join(outputs_sorted, ","), "/",
-                                     str_util::Join(tn_sorted, ","), "/",
-                                     run_state_args->is_partial_run);
+  const string key = strings::StrCat(
+      str_util::Join(inputs_sorted, ","), "->",
+      str_util::Join(outputs_sorted, ","), "/", str_util::Join(tn_sorted, ","),
+      "/", run_state_args->is_partial_run, "/",
+      SummarizeDebugTensorWatches(run_state_args->debug_tensor_watches));
 
   // Set the handle.
   run_state_args->handle =
@@ -928,7 +946,7 @@ Status DirectSession::GetOrCreateExecutors(
     partition_graph = iter->second.release();
     optimizer.Optimize(lib, options_.env, device, &partition_graph);
 
-    // EXPERIMENTAL: tfdb inserts debug nodes (i.e., probes) to the graph
+    // EXPERIMENTAL: tfdbg inserts debug nodes (i.e., probes) to the graph
     if (!run_state_args->debug_tensor_watches.empty()) {
       TF_RETURN_IF_ERROR(
           DebugNodeInserter::InsertNodes(run_state_args->debug_tensor_watches,
