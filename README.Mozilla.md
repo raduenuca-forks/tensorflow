@@ -35,10 +35,10 @@ Pick the URL to the "tensorflow-VERSION-py2-none-any.whl" and pass it to PIP:
 $ pip install --upgrade URL
 ```
 
-For the current version being built, 0.11.0rc0, this should also be a stable
+For the current version being built, 0.11.0rc1, this should also be a stable
 and direct link:
-* CPU: https://index.taskcluster.net/v1/task/project.deepspeech.tensorflow.pip.warpctc.cpu/artifacts/public/tensorflow-0.11.0rc0-py2-none-any.whl
-* GPU: https://index.taskcluster.net/v1/task/project.deepspeech.tensorflow.pip.warpctc.gpu/artifacts/public/tensorflow-0.11.0rc0-py2-none-any.whl
+* CPU: https://index.taskcluster.net/v1/task/project.deepspeech.tensorflow.pip.warpctc.cpu/artifacts/public/tensorflow-0.11.0rc1-py2-none-any.whl
+* GPU: https://index.taskcluster.net/v1/task/project.deepspeech.tensorflow.pip.warpctc.gpu/artifacts/public/tensorflow-0.11.0rc1-py2-none-any.whl
 
 # System setup
 
