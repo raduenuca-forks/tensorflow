@@ -10,8 +10,8 @@ if [ "$1" = "--cuda" ]; then
     install_cuda=yes
 fi
 
-BAZEL_URL=https://github.com/bazelbuild/bazel/releases/download/0.3.1/bazel-0.3.1-installer-linux-x86_64.sh
-BAZEL_SHA256=97dd53414e12da1c9a8a23911ebe732b4b278295ed6b226a5ddee4cd6775a01b
+BAZEL_URL=https://github.com/bazelbuild/bazel/releases/download/0.3.2/bazel-0.3.2-installer-linux-x86_64.sh
+BAZEL_SHA256=2744447c9999ceea3dc0b90013dcdfbc3683ebb416eb45287c98049bb7a1c6a8
 
 CUDA_URL=https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run
 CUDA_SHA256=64dc4ab867261a0d690735c46d7cc9fc60d989da0d69dc04d1714e409cacbdf0
@@ -43,7 +43,7 @@ ls -hal ~/dls/
 # Install Bazel in ~/bin
 mkdir -p ~/bin || true
 pushd ~/bin
-/bin/bash ~/dls/bazel-0.3.1-installer-linux-x86_64.sh --user
+/bin/bash ~/dls/`basename "${BAZEL_URL}"` --user
 popd
 
 # For debug
