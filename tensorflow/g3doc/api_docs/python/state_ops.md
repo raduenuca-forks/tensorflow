@@ -104,7 +104,7 @@ Creating a variable.
 
 - - -
 
-#### `tf.Variable.__init__(initial_value=None, trainable=True, collections=None, validate_shape=True, caching_device=None, name=None, variable_def=None, dtype=None, expected_shape=None)` {#Variable.__init__}
+#### `tf.Variable.__init__(initial_value=None, trainable=True, collections=None, validate_shape=True, caching_device=None, name=None, variable_def=None, dtype=None, expected_shape=None, import_scope=None)` {#Variable.__init__}
 
 Creates a new variable with value `initial_value`.
 
@@ -149,6 +149,8 @@ variable to its initial value.
     a Tensor), or `convert_to_tensor` will decide.
 *  <b>`expected_shape`</b>: A TensorShape. If set, initial_value is expected
     to have this shape.
+*  <b>`import_scope`</b>: Optional `string`. Name scope to add to the
+    `Variable.` Only used when initializing from protocol buffer.
 
 ##### Raises:
 
@@ -1086,7 +1088,7 @@ x ^ y = (x | y) & ~(x & y).
 
 - - -
 
-#### `tf.Variable.from_proto(variable_def)` {#Variable.from_proto}
+#### `tf.Variable.from_proto(variable_def, import_scope=None)` {#Variable.from_proto}
 
 Returns a `Variable` object created from `variable_def`.
 
@@ -1128,13 +1130,19 @@ variable.
 
 - - -
 
-#### `tf.Variable.to_proto()` {#Variable.to_proto}
+#### `tf.Variable.to_proto(export_scope=None)` {#Variable.to_proto}
 
 Converts a `Variable` to a `VariableDef` protocol buffer.
 
+##### Args:
+
+
+*  <b>`export_scope`</b>: Optional `string`. Name scope to remove.
+
 ##### Returns:
 
-  A `VariableDef` protocol buffer.
+  A `VariableDef` protocol buffer, or `None` if the `Variable` is not
+  in the specified name scope.
 
 
 - - -
@@ -1610,7 +1618,7 @@ checkpoints per device.
 
 - - -
 
-#### `tf.train.Saver.save(sess, save_path, global_step=None, latest_filename=None, meta_graph_suffix='meta', write_meta_graph=True)` {#Saver.save}
+#### `tf.train.Saver.save(sess, save_path, global_step=None, latest_filename=None, meta_graph_suffix='meta', write_meta_graph=True, write_state=True)` {#Saver.save}
 
 Saves variables.
 
@@ -1638,6 +1646,8 @@ path can be passed directly to a call to `restore()`.
 *  <b>`meta_graph_suffix`</b>: Suffix for `MetaGraphDef` file. Defaults to 'meta'.
 *  <b>`write_meta_graph`</b>: `Boolean` indicating whether or not to write the meta
     graph file.
+*  <b>`write_state`</b>: `Boolean` indicating whether or not to write the
+    `CheckpointStateProto`.
 
 ##### Returns:
 
@@ -1678,7 +1688,8 @@ The `save_path` argument is typically a value previously returned from a
 ##### Raises:
 
 
-*  <b>`ValueError`</b>: If the given `save_path` does not point to a file.
+*  <b>`ValueError`</b>: DEPRECATED, do not rely on this Error.  If the given
+    `save_path` does not point to a file.
 
 
 
@@ -1754,7 +1765,7 @@ Builds saver_def.
 
 - - -
 
-#### `tf.train.Saver.export_meta_graph(filename=None, collection_list=None, as_text=False)` {#Saver.export_meta_graph}
+#### `tf.train.Saver.export_meta_graph(filename=None, collection_list=None, as_text=False, export_scope=None)` {#Saver.export_meta_graph}
 
 Writes `MetaGraphDef` to save_path/filename.
 
@@ -1764,6 +1775,7 @@ Writes `MetaGraphDef` to save_path/filename.
 *  <b>`filename`</b>: Optional meta_graph filename including the path.
 *  <b>`collection_list`</b>: List of string keys to collect.
 *  <b>`as_text`</b>: If `True`, writes the meta_graph as an ASCII proto.
+*  <b>`export_scope`</b>: Optional `string`. Name scope to remove.
 
 ##### Returns:
 
@@ -1772,9 +1784,19 @@ Writes `MetaGraphDef` to save_path/filename.
 
 - - -
 
-#### `tf.train.Saver.from_proto(saver_def)` {#Saver.from_proto}
+#### `tf.train.Saver.from_proto(saver_def, import_scope=None)` {#Saver.from_proto}
 
 Returns a `Saver` object created from `saver_def`.
+
+##### Args:
+
+
+*  <b>`saver_def`</b>: a `SaveDef` protocol buffer.
+*  <b>`import_scope`</b>: Optional `string`. Name scope to use.
+
+##### Returns:
+
+  A `Saver` built from saver_def.
 
 
 - - -
@@ -1798,9 +1820,14 @@ Sets the list of old checkpoint filenames.
 
 - - -
 
-#### `tf.train.Saver.to_proto()` {#Saver.to_proto}
+#### `tf.train.Saver.to_proto(export_scope=None)` {#Saver.to_proto}
 
 Converts this `Saver` to a `SaverDef` protocol buffer.
+
+##### Args:
+
+
+*  <b>`export_scope`</b>: Optional `string`. Name scope to remove.
 
 ##### Returns:
 
@@ -2432,7 +2459,7 @@ tensor shape, the initializer will raise a `ValueError`.
 
 
 *  <b>`ValueError`</b>: Too many elements provided. Needed at most 6, but received 8
-  ```
+```
 
 
 - - -
@@ -2915,6 +2942,280 @@ Requires `updates.shape = indices.shape + ref.shape[1:]`.
 
 - - -
 
+### `tf.scatter_nd_update(ref, indices, updates, use_locking=None, name=None)` {#scatter_nd_update}
+
+Applies sparse `updates` to individual values or slices within a given variable according to `indices`.
+
+`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.
+
+`indices` must be integer tensor, containing indices into `ref`.
+It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.
+
+The innermost dimension of `indices` (with length `K`) corresponds to
+indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
+dimension of `ref`.
+
+`updates` is `Tensor` of rank `Q-1+P-K` with shape:
+
+```
+[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].
+```
+
+For example, say we want to update 4 scattered elements to a rank-1 tensor to 8 elements. In Python, that update would look like this:
+
+    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+    indices = tf.constant([[4], [3], [1] ,[7]])
+    updates = tf.constant([9, 10, 11, 12])
+    update = tf.scatter_nd_update(ref, indices, updates)
+    with tf.Session() as sess:
+      print sess.run(update)
+
+The resulting update to ref would look like this:
+
+    [1, 11, 3, 10, 9, 6, 7, 12]
+
+See [tf.scatter_nd](#scatter_nd) for more details about how to make updates to slices.
+
+##### Args:
+
+
+*  <b>`ref`</b>: A mutable `Tensor`. A mutable Tensor. Should be from a Variable node.
+*  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
+    A Tensor. Must be one of the following types: int32, int64. A tensor of indices into ref.
+*  <b>`updates`</b>: A `Tensor`. Must have the same type as `ref`.
+    A Tensor. Must have the same type as ref. A tensor of updated values to add to ref.
+*  <b>`use_locking`</b>: An optional `bool`. Defaults to `True`.
+    An optional bool. Defaults to True. If True, the assignment will be protected by a lock; otherwise the behavior is undefined, but may exhibit less contention.
+*  <b>`name`</b>: A name for the operation (optional).
+
+##### Returns:
+
+  A mutable `Tensor`. Has the same type as `ref`.
+  Same as ref. Returned as a convenience for operations that want to use the updated values after the update is done.
+
+
+- - -
+
+### `tf.scatter_nd_add(ref, indices, updates, use_locking=None, name=None)` {#scatter_nd_add}
+
+Applies sparse addition between `updates` and individual values or slices within a given variable according to `indices`.
+
+`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.
+
+`indices` must be integer tensor, containing indices into `ref`.
+It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.
+
+The innermost dimension of `indices` (with length `K`) corresponds to
+indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
+dimension of `ref`.
+
+`updates` is `Tensor` of rank `Q-1+P-K` with shape:
+
+```
+[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].
+```
+
+For example, say we want to add 4 scattered elements to a rank-1 tensor to 8 elements. In Python, that addition would look like this:
+
+    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+    indices = tf.constant([[4], [3], [1], [7]])
+    updates = tf.constant([9, 10, 11, 12])
+    add = tf.scatter_nd_add(ref, indices, updates)
+    with tf.Session() as sess:
+      print sess.run(add)
+
+The resulting update to ref would look like this:
+
+    [1, 13, 3, 14, 14, 6, 7, 20]
+
+See [tf.scatter_nd](#scatter_nd) for more details about how to make updates to slices.
+
+##### Args:
+
+
+*  <b>`ref`</b>: A mutable `Tensor`. Must be one of the following types: `float32`, `float64`, `int64`, `int32`, `uint8`, `uint16`, `int16`, `int8`, `complex64`, `complex128`, `qint8`, `quint8`, `qint32`, `half`.
+    A mutable Tensor. Should be from a Variable node.
+*  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
+    A Tensor. Must be one of the following types: int32, int64. A tensor of indices into ref.
+*  <b>`updates`</b>: A `Tensor`. Must have the same type as `ref`.
+    A Tensor. Must have the same type as ref. A tensor of updated values to add to ref.
+*  <b>`use_locking`</b>: An optional `bool`. Defaults to `False`.
+    An optional bool. Defaults to True. If True, the assignment will be protected by a lock; otherwise the behavior is undefined, but may exhibit less contention.
+*  <b>`name`</b>: A name for the operation (optional).
+
+##### Returns:
+
+  A mutable `Tensor`. Has the same type as `ref`.
+  Same as ref. Returned as a convenience for operations that want to use the updated values after the update is done.
+
+
+- - -
+
+### `tf.scatter_nd_sub(ref, indices, updates, use_locking=None, name=None)` {#scatter_nd_sub}
+
+Applies sparse subtraction between `updates` and individual values or slices within a given variable according to `indices`.
+
+`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.
+
+`indices` must be integer tensor, containing indices into `ref`.
+It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.
+
+The innermost dimension of `indices` (with length `K`) corresponds to
+indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
+dimension of `ref`.
+
+`updates` is `Tensor` of rank `Q-1+P-K` with shape:
+
+```
+[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].
+```
+
+For example, say we want to subtract 4 scattered elements from a rank-1 tensor with 8 elements. In Python, that subtraction would look like this:
+
+    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+    indices = tf.constant([[4], [3], [1], [7]])
+    updates = tf.constant([9, 10, 11, 12])
+    sub = tf.scatter_nd_sub(ref, indices, updates)
+    with tf.Session() as sess:
+      print sess.run(sub)
+
+The resulting update to ref would look like this:
+
+    [1, -9, 3, -6, -4, 6, 7, -4]
+
+See [tf.scatter_nd](#scatter_nd) for more details about how to make updates to slices.
+
+##### Args:
+
+
+*  <b>`ref`</b>: A mutable `Tensor`. Must be one of the following types: `float32`, `float64`, `int64`, `int32`, `uint8`, `uint16`, `int16`, `int8`, `complex64`, `complex128`, `qint8`, `quint8`, `qint32`, `half`.
+    A mutable Tensor. Should be from a Variable node.
+*  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
+    A Tensor. Must be one of the following types: int32, int64. A tensor of indices into ref.
+*  <b>`updates`</b>: A `Tensor`. Must have the same type as `ref`.
+    A Tensor. Must have the same type as ref. A tensor of updated values to subtract from ref.
+*  <b>`use_locking`</b>: An optional `bool`. Defaults to `False`.
+    An optional bool. Defaults to True. If True, the assignment will be protected by a lock; otherwise the behavior is undefined, but may exhibit less contention.
+*  <b>`name`</b>: A name for the operation (optional).
+
+##### Returns:
+
+  A mutable `Tensor`. Has the same type as `ref`.
+  Same as ref. Returned as a convenience for operations that want to use the updated values after the update is done.
+
+
+- - -
+
+### `tf.scatter_nd_mul(ref, indices, updates, use_locking=None, name=None)` {#scatter_nd_mul}
+
+Applies sparse subtraction between `updates` and individual values or slices within a given variable according to `indices`.
+
+`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.
+
+`indices` must be integer tensor, containing indices into `ref`.
+It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.
+
+The innermost dimension of `indices` (with length `K`) corresponds to
+indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
+dimension of `ref`.
+
+`updates` is `Tensor` of rank `Q-1+P-K` with shape:
+
+```
+[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].
+```
+
+For example, say we want to multiply 4 scattered elements with a rank-1 tensor with 8 elements. In Python, that multiplication would look like this:
+
+    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+    indices = tf.constant([[4], [3], [1], [7]])
+    updates = tf.constant([9, 10, 11, 12])
+    sub = tf.scatter_nd_mul(ref, indices, updates)
+    with tf.Session() as sess:
+      print sess.run(sub)
+
+The resulting update to ref would look like this:
+
+    [1, 22, 3, 40, 45, 6, 7, 96]
+
+See [tf.scatter_nd](#scatter_nd) for more details about how to make updates to slices.
+
+##### Args:
+
+
+*  <b>`ref`</b>: A mutable `Tensor`. Must be one of the following types: `float32`, `float64`, `int64`, `int32`, `uint8`, `uint16`, `int16`, `int8`, `complex64`, `complex128`, `qint8`, `quint8`, `qint32`, `half`.
+    A mutable Tensor. Should be from a Variable node.
+*  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
+    A Tensor. Must be one of the following types: int32, int64. A tensor of indices into ref.
+*  <b>`updates`</b>: A `Tensor`. Must have the same type as `ref`.
+    A Tensor. Must have the same type as ref. A tensor of updated values to subtract from ref.
+*  <b>`use_locking`</b>: An optional `bool`. Defaults to `False`.
+    An optional bool. Defaults to True. If True, the assignment will be protected by a lock; otherwise the behavior is undefined, but may exhibit less contention.
+*  <b>`name`</b>: A name for the operation (optional).
+
+##### Returns:
+
+  A mutable `Tensor`. Has the same type as `ref`.
+  Same as ref. Returned as a convenience for operations that want to use the updated values after the update is done.
+
+
+- - -
+
+### `tf.scatter_nd_div(ref, indices, updates, use_locking=None, name=None)` {#scatter_nd_div}
+
+Applies sparse subtraction between `updates` and individual values or slices within a given variable according to `indices`.
+
+`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.
+
+`indices` must be integer tensor, containing indices into `ref`.
+It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.
+
+The innermost dimension of `indices` (with length `K`) corresponds to
+indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
+dimension of `ref`.
+
+`updates` is `Tensor` of rank `Q-1+P-K` with shape:
+
+```
+[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].
+```
+
+For example, say we want to divide a rank-1 tensor with 8 elements by 4 scattered elements. In Python, that division would look like this:
+
+    ref = tf.Variable([10, 20, 30, 40, 50, 60, 70, 80])
+    indices = tf.constant([[4], [3], [1], [7]])
+    updates = tf.constant([2, 3, 4, 5])
+    sub = tf.scatter_nd_div(ref, indices, updates)
+    with tf.Session() as sess:
+      print sess.run(sub)
+
+The resulting update to ref would look like this:
+
+    [10, 5, 30, 13, 25, 60, 70, 16]
+
+See [tf.scatter_nd](#scatter_nd) for more details about how to make updates to slices.
+
+##### Args:
+
+
+*  <b>`ref`</b>: A mutable `Tensor`. Must be one of the following types: `float32`, `float64`, `int64`, `int32`, `uint8`, `uint16`, `int16`, `int8`, `complex64`, `complex128`, `qint8`, `quint8`, `qint32`, `half`.
+    A mutable Tensor. Should be from a Variable node.
+*  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
+    A Tensor. Must be one of the following types: int32, int64. A tensor of indices into ref.
+*  <b>`updates`</b>: A `Tensor`. Must have the same type as `ref`.
+    A Tensor. Must have the same type as ref. A tensor of updated values to subtract from ref.
+*  <b>`use_locking`</b>: An optional `bool`. Defaults to `False`.
+    An optional bool. Defaults to True. If True, the assignment will be protected by a lock; otherwise the behavior is undefined, but may exhibit less contention.
+*  <b>`name`</b>: A name for the operation (optional).
+
+##### Returns:
+
+  A mutable `Tensor`. Has the same type as `ref`.
+  Same as ref. Returned as a convenience for operations that want to use the updated values after the update is done.
+
+
+- - -
+
 ### `tf.sparse_mask(a, mask_indices, name=None)` {#sparse_mask}
 
 Masks elements of `IndexedSlices`.
@@ -3093,7 +3394,7 @@ Returns an Op that initializes all tables of the default graph.
 
 - - -
 
-### `tf.train.export_meta_graph(filename=None, meta_info_def=None, graph_def=None, saver_def=None, collection_list=None, as_text=False)` {#export_meta_graph}
+### `tf.train.export_meta_graph(filename=None, meta_info_def=None, graph_def=None, saver_def=None, collection_list=None, as_text=False, graph=None, export_scope=None, **kwargs)` {#export_meta_graph}
 
 Returns `MetaGraphDef` proto. Optionally writes it to filename.
 
@@ -3112,15 +3413,26 @@ a subgraph.
 *  <b>`saver_def`</b>: `SaverDef` protocol buffer.
 *  <b>`collection_list`</b>: List of string keys to collect.
 *  <b>`as_text`</b>: If `True`, writes the `MetaGraphDef` as an ASCII proto.
+*  <b>`graph`</b>: The `Graph` to import into. If `None`, use the default graph.
+*  <b>`export_scope`</b>: Optional `string`. Name scope under which to extract
+    the subgraph. The scope name will be striped from the node definitions
+    for easy import later into new name scopes. If `None`, the whole graph
+    is exported. graph_def and export_scope cannot both be specified.
+*  <b>`**kwargs`</b>: Optional keyed arguments.
 
 ##### Returns:
 
   A `MetaGraphDef` proto.
 
+##### Raises:
+
+
+*  <b>`ValueError`</b>: When the `GraphDef` is larger than 2GB.
+
 
 - - -
 
-### `tf.train.import_meta_graph(meta_graph_or_file, clear_devices=False)` {#import_meta_graph}
+### `tf.train.import_meta_graph(meta_graph_or_file, clear_devices=False, import_scope=None, **kwargs)` {#import_meta_graph}
 
 Recreates a Graph saved in a `MetaGraphDef` proto.
 
@@ -3177,8 +3489,11 @@ device assignments have not changed.
 
 *  <b>`meta_graph_or_file`</b>: `MetaGraphDef` protocol buffer or filename (including
     the path) containing a `MetaGraphDef`.
-*  <b>`clear_devices`</b>: Boolean which controls whether to clear device information
-    from graph_def. Default false.
+*  <b>`clear_devices`</b>: Whether or not to clear the device field for an `Operation`
+    or `Tensor` during import.
+*  <b>`import_scope`</b>: Optional `string`. Name scope to add. Only used when
+    initializing from protocol buffer.
+*  <b>`**kwargs`</b>: Optional keyed arguments.
 
 ##### Returns:
 
