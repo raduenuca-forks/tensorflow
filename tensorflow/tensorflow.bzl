@@ -76,6 +76,12 @@ def if_not_mobile(a):
       "//conditions:default": a,
   })
 
+def if_rpi3(a):
+  return select({
+      "//tensorflow:rpi3": a,
+      "//conditions:default": [],
+  })
+
 def if_not_windows(a):
   return select({
       "//tensorflow:windows": [],
