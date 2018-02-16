@@ -41,7 +41,8 @@ def is_external(compiled_file_name, output_file_name):
       "third_party",
       "external",
       "hexagon",
-      "lite"
+      "lite",
+      "kenlm"
   ]
   skip_folders = [(folder + '/') for folder in skip_folders]
 
