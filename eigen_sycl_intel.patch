@@ -1,0 +1,14 @@
+--- a/unsupported/Eigen/CXX11/src/Tensor/TensorDeviceSycl.h	2018-02-19 14:48:17.252343698 +0100
++++ b/unsupported/Eigen/CXX11/src/Tensor/TensorDeviceSycl.h	2018-02-17 17:38:00.345594829 +0100
+@@ -94,9 +94,9 @@
+       std::transform(vendor.begin(), vendor.end(), vendor.begin(), ::tolower);
+       bool unsuported_condition = (device.is_cpu() && platform_name.find("amd")!=std::string::npos && vendor.find("apu") == std::string::npos) ||
+       (device.is_gpu() && platform_name.find("intel")!=std::string::npos);
+-      if(!unsuported_condition){
++      // if(!unsuported_condition){
+         supported_devices.push_back(device);
+-      }
++      // }
+   }
+ }
+   return supported_devices;
