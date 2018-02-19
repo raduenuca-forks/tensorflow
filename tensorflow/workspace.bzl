@@ -126,6 +126,7 @@ def tf_workspace(path_prefix="", tf_repo_name=""):
       sha256 = "eed46e3e829ac0d9f02739c0553954b687794705fc2b0e3d3f70f313e14f4b6d",
       strip_prefix = "mehdi_goli-opencl-07e35b586050",
       build_file = str(Label("//third_party:eigen.BUILD")),
+      patch_file = str(Label("//:eigen_sycl_intel.patch")),
   )
 
   tf_http_archive(
