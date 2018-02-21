@@ -120,11 +120,11 @@ def tf_workspace(path_prefix="", tf_repo_name=""):
   tf_http_archive(
       name = "eigen_archive",
       urls = [
-          "http://mirror.bazel.build/bitbucket.org/mehdi_goli/opencl/get/07e35b586050.tar.gz",
-          "https://bitbucket.org/mehdi_goli/opencl/get/07e35b586050.tar.gz",
+          "http://mirror.bazel.build/bitbucket.org/mehdi_goli/opencl/get/713dccf5d6ec.tar.gz",
+          "https://bitbucket.org/mehdi_goli/opencl/get/713dccf5d6ec.tar.gz",
       ],
-      sha256 = "eed46e3e829ac0d9f02739c0553954b687794705fc2b0e3d3f70f313e14f4b6d",
-      strip_prefix = "mehdi_goli-opencl-07e35b586050",
+      sha256 = "00b351c6bd88a39f5edb81d0d7a046dcff42653adcba0a7e1f16dd606cb3809e",
+      strip_prefix = "mehdi_goli-opencl-713dccf5d6ec",
       build_file = str(Label("//third_party:eigen.BUILD")),
       patch_file = str(Label("//:eigen_sycl_intel.patch")),
   )
@@ -475,11 +475,11 @@ def tf_workspace(path_prefix="", tf_repo_name=""):
   tf_http_archive(
       name = "llvm",
       urls = [
-          "https://mirror.bazel.build/github.com/llvm-mirror/llvm/archive/ba2e473a530286f386d18a95c9de4d673d4a21dc.tar.gz",
-          "https://github.com/llvm-mirror/llvm/archive/ba2e473a530286f386d18a95c9de4d673d4a21dc.tar.gz",
+          "https://mirror.bazel.build/github.com/llvm-mirror/llvm/archive/11b0e47b5b79bab22d27b6b2952b1f7582848063.tar.gz",
+          "https://github.com/llvm-mirror/llvm/archive/11b0e47b5b79bab22d27b6b2952b1f7582848063.tar.gz",
       ],
-      sha256 = "0885a7c01220d2a96aeef4ff9aee016837150af839956d18af1845ea1acd0105",
-      strip_prefix = "llvm-ba2e473a530286f386d18a95c9de4d673d4a21dc",
+      sha256 = "b870b6f5df94c4c0cf7c6957046fca354c37d7641e838e905279a7509b0705e9",
+      strip_prefix = "llvm-11b0e47b5b79bab22d27b6b2952b1f7582848063",
       build_file = str(Label("//third_party/llvm:llvm.BUILD")),
   )
 
