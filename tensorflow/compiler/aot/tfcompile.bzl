@@ -134,8 +134,12 @@ def tf_library(name, graph, config,
   ep = ("__" + PACKAGE_NAME + "__" + name).replace("/", "_")
   if type(tfcompile_flags) == type(""):
     flags = tfcompile_flags
-  else:
+  elif type(tfcompile_flags) == type([]):
     flags = " ".join(["'" + arg.replace("'", "'\\''") + "'" for arg in (tfcompile_flags or [])])
+  elif type(tfcompile_flags) == type(None):
+    flags = ""
+  else:
+    flags = tfcompile_flags
   native.genrule(
       name=("gen_" + name),
       srcs=[
@@ -203,7 +207,7 @@ def tf_library(name, graph, config,
 
   # The cc_library rule packaging up the header and object file, and needed
   # kernel implementations.
-  need_xla_data_proto = (flags and flags.find("--gen_program_shape") != -1)
+  need_xla_data_proto = (flags and ( type(tfcompile_flags) == type('') ) and flags.find("--gen_program_shape") != -1)
   native.cc_library(
       name=name,
       srcs=[function_object_file, metadata_object_file],
@@ -343,5 +347,6 @@ def target_llvm_triple():
       "//tensorflow:android_x86": "i686-none-android",
       "//tensorflow:linux_ppc64le": "ppc64le-ibm-linux-gnu",
       "//tensorflow:darwin": "x86_64-none-darwin",
+      "//tensorflow:rpi3": "armv6-linux-gnueabihf",
       "//conditions:default": "x86_64-pc-linux",
   })
