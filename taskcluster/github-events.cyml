@@ -11,4 +11,4 @@ taskcluster:
       events:
         - push
       branches:
-        - r1.11
+        - r1.12
