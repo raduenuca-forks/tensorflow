@@ -488,8 +488,7 @@ tf_cc_shared_object(
     name = "libtensorflow.so",
     linkopts = select({
         "//tensorflow:darwin": [
-            "-Wl,-exported_symbols_list",  # This line must be directly followed by the exported_symbols.lds file
-            "$(location //tensorflow/c:exported_symbols.lds)",
+            "-Wl,-exported_symbols_list,$(location //tensorflow/c:exported_symbols.lds)",
             "-Wl,-install_name,@rpath/libtensorflow.so",
         ],
         "//tensorflow:windows": [],
@@ -514,8 +513,7 @@ tf_cc_shared_object(
     name = "libtensorflow_cc.so",
     linkopts = select({
         "//tensorflow:darwin": [
-            "-Wl,-exported_symbols_list",  # This line must be directly followed by the exported_symbols.lds file
-            "$(location //tensorflow:tf_exported_symbols.lds)",
+            "-Wl,-exported_symbols_list,$(location //tensorflow:tf_exported_symbols.lds)",
         ],
         "//tensorflow:windows": [],
         "//conditions:default": [
