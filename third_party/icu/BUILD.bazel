@@ -1,5 +1,5 @@
 package(
-    default_visibility = ["//visibility:public"],
+    default_visibility = ["//visibility:private"],
 )
 
 licenses(["notice"])  # Apache 2.0
@@ -44,6 +44,7 @@ cc_library(
     ]),
     copts = [
         "-DU_COMMON_IMPLEMENTATION",
+        "-DU_STATIC_IMPLEMENTATION",
         "-DU_HAVE_STD_ATOMICS",
     ] + select({
         ":android": [

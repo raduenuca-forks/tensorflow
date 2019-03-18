@@ -100,6 +100,30 @@ config_setting(
 )
 
 config_setting(
+    name = "rpi3",
+    define_values = {
+        "target_system": "rpi3"
+    },
+    values = {
+        "host_crosstool_top": "@bazel_tools//tools/cpp:toolchain",
+        "cpu": "armv7",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "rpi3-armv8",
+    define_values = {
+        "target_system": "rpi3-armv8"
+    },
+    values = {
+        "host_crosstool_top": "@bazel_tools//tools/cpp:toolchain",
+        "cpu": "armv8",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
     name = "android_arm",
     values = {
         "crosstool_top": "//external:android/crosstool",
@@ -464,8 +488,7 @@ tf_cc_shared_object(
     name = "libtensorflow.so",
     linkopts = select({
         "//tensorflow:darwin": [
-            "-Wl,-exported_symbols_list",  # This line must be directly followed by the exported_symbols.lds file
-            "$(location //tensorflow/c:exported_symbols.lds)",
+            "-Wl,-exported_symbols_list,$(location //tensorflow/c:exported_symbols.lds)",
             "-Wl,-install_name,@rpath/libtensorflow.so",
         ],
         "//tensorflow:windows": [],
@@ -490,8 +513,7 @@ tf_cc_shared_object(
     name = "libtensorflow_cc.so",
     linkopts = select({
         "//tensorflow:darwin": [
-            "-Wl,-exported_symbols_list",  # This line must be directly followed by the exported_symbols.lds file
-            "$(location //tensorflow:tf_exported_symbols.lds)",
+            "-Wl,-exported_symbols_list,$(location //tensorflow:tf_exported_symbols.lds)",
         ],
         "//tensorflow:windows": [],
         "//conditions:default": [

@@ -136,11 +136,11 @@ def tf_workspace(path_prefix = "", tf_repo_name = ""):
     tf_http_archive(
         name = "eigen_archive",
         build_file = clean_dep("//third_party:eigen.BUILD"),
-        sha256 = "753fbb58d0a49b6bcbcfb126ebfa2e21fc97f7471529ba835a096008ce588d8a",
-        strip_prefix = "eigen-eigen-9f48e814419e",
+        sha256 = "48678550a32665331d729be87076e576f2502fff325f5b6c2c78ebf7b1b22c7b",
+        strip_prefix = "eigen-eigen-bcc817c0ba98",
         urls = [
-            "https://mirror.bazel.build/bitbucket.org/eigen/eigen/get/9f48e814419e.tar.gz",
-            "https://bitbucket.org/eigen/eigen/get/9f48e814419e.tar.gz",
+            "https://mirror.bazel.build/bitbucket.org/eigen/eigen/get/bcc817c0ba98.tar.gz",
+            "https://bitbucket.org/eigen/eigen/get/bcc817c0ba98.tar.gz",
         ],
     )
 
@@ -155,6 +155,46 @@ def tf_workspace(path_prefix = "", tf_repo_name = ""):
             # remove the whitelist entry in third_party/repo.bzl.
             # "https://github.com/raspberrypi/tools/archive/0e906ebc527eab1cdbf7adabff5b474da9562e9f.tar.gz",
         ],
+    )
+
+    tf_http_archive(
+        name = "LinaroArmGcc49",
+        build_file = clean_dep("//compilers:linaro-gcc49-armeabi.BUILD"),
+        strip_prefix = "gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabihf/",
+        urls = [
+            "https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/arm-linux-gnueabihf/gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabihf.tar.xz",
+        ],
+        sha256 = "22914118fd963f953824b58107015c6953b5bbdccbdcf25ad9fd9a2f9f11ac07",
+    )
+
+    tf_http_archive(
+        name = "LinaroArmGcc72",
+        build_file = clean_dep("//compilers:linaro-gcc72-armeabi.BUILD"),
+        strip_prefix = "gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/",
+        urls = [
+            "https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz",
+        ],
+        sha256 = "cee0087b1f1205b73996651b99acd3a926d136e71047048f1758ffcec69b1ca2",
+    )
+
+    tf_http_archive(
+        name = "LinaroAarch64Gcc49",
+        build_file = clean_dep("//compilers:linaro-gcc49-aarch64.BUILD"),
+        strip_prefix = "gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/",
+        urls = [
+            "https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/aarch64-linux-gnu/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz",
+        ],
+        sha256 = "d1f2761b697e6b49f5db1ec0cd48d2fd98224be8cb5ef182093f691e99c923eb",
+    )
+
+    tf_http_archive(
+        name = "LinaroAarch64Gcc72",
+        build_file = clean_dep("//compilers:linaro-gcc72-aarch64.BUILD"),
+        strip_prefix = "gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/",
+        urls = [
+            "https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz",
+        ],
+        sha256 = "20181f828e1075f1a493947ff91e82dd578ce9f8638fbdfc39e24b62857d8f8d",
     )
 
     tf_http_archive(
