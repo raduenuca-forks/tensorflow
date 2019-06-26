@@ -8,23 +8,25 @@ mkdir -p ${TASKCLUSTER_ARTIFACTS} || true
 
 cp ${DS_ROOT_TASK}/DeepSpeech/tf/bazel_*.log ${TASKCLUSTER_ARTIFACTS}
 
+OUTPUT_ROOT="${DS_ROOT_TASK}/DeepSpeech/tf/bazel-bin"
+
 for output_bin in                                                            \
-    tensorflow/libtensorflow_cc.so                                           \
-    tensorflow/lite/experimental/c/libtensorflowlite_c.so            \
+    "tensorflow/${LIBTENSORFLOW_CC_BASENAME}"                                \
+    tensorflow/lite/experimental/c/libtensorflowlite_c.so                    \
     tensorflow/tools/graph_transforms/transform_graph                        \
     tensorflow/tools/graph_transforms/summarize_graph                        \
     tensorflow/tools/benchmark/benchmark_model                               \
     tensorflow/contrib/util/convert_graphdef_memmapped_format                \
     tensorflow/lite/toco/toco;
 do
-    if [ -f "${DS_ROOT_TASK}/DeepSpeech/tf/bazel-bin/${output_bin}" ]; then
-        cp ${DS_ROOT_TASK}/DeepSpeech/tf/bazel-bin/${output_bin} ${TASKCLUSTER_ARTIFACTS}/
+    if [ -f "${OUTPUT_ROOT}/${output_bin}" ]; then
+        cp ${OUTPUT_ROOT}/${output_bin} ${TASKCLUSTER_ARTIFACTS}/
     fi;
 done;
 
-if [ -f "${DS_ROOT_TASK}/DeepSpeech/tf/bazel-bin/tensorflow/lite/tools/benchmark/benchmark_model" ]; then
-    cp ${DS_ROOT_TASK}/DeepSpeech/tf/bazel-bin/tensorflow/lite/tools/benchmark/benchmark_model ${TASKCLUSTER_ARTIFACTS}/lite_benchmark_model
-fi;
+if [ -f "${OUTPUT_ROOT}/tensorflow/lite/tools/benchmark/benchmark_model" ]; then
+    cp ${OUTPUT_ROOT}/tensorflow/lite/tools/benchmark/benchmark_model ${TASKCLUSTER_ARTIFACTS}/lite_benchmark_model
+fi
 
 # It seems that bsdtar and gnutar are behaving a bit differently on the way
 # they deal with --exclude="./public/*" ; this caused ./DeepSpeech/tensorflow/core/public/
