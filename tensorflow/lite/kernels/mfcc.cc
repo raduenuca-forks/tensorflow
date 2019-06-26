@@ -72,7 +72,7 @@ TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
   TfLiteTensor* output = GetOutput(context, node, kOutputTensor);
 
   TF_LITE_ENSURE_EQ(context, NumDimensions(inputWav), 3);
-  TF_LITE_ENSURE_EQ(context, NumDimensions(inputRate), 1);
+  TF_LITE_ENSURE_EQ(context, NumDimensions(inputRate), 0);
 
   TF_LITE_ENSURE_EQ(context, output->type, kTfLiteFloat32);
   TF_LITE_ENSURE_EQ(context, inputWav->type, output->type);

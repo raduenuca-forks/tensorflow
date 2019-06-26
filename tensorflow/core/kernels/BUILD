@@ -5128,14 +5128,14 @@ cc_library(
         ":string_format_op",
         ":string_join_op",
         ":string_length_op",
-        ":string_lower_op",
+        # ":string_lower_op",
         ":string_split_op",
         ":string_strip_op",
         ":string_to_hash_bucket_op",
-        ":string_upper_op",
+        # ":string_upper_op",
         ":substr_op",
-        ":unicode_ops",
-        ":unicode_script_op",
+        # ":unicode_ops",
+        # ":unicode_script_op",
     ],
 )
 
@@ -5147,7 +5147,7 @@ cc_library(
         "//tensorflow/core:framework",
         "//tensorflow/core:lib",
         "//tensorflow/core:protos_all_cc",
-        "@icu//:common",
+        # "@icu//:common",
     ],
 )
 
@@ -5273,7 +5273,7 @@ tf_kernel_library(
     prefix = "string_lower_op",
     deps = STRING_DEPS + [
         "@com_google_absl//absl/strings",
-        "@icu//:common",
+        # "@icu//:common",
     ],
 )
 
@@ -5282,7 +5282,7 @@ tf_kernel_library(
     prefix = "string_upper_op",
     deps = STRING_DEPS + [
         "@com_google_absl//absl/strings",
-        "@icu//:common",
+        # "@icu//:common",
     ],
 )
 
@@ -5328,7 +5328,7 @@ tf_kernel_library(
         "//tensorflow/core:lib_internal",
         "//third_party/eigen3",
         "//third_party/icu/data:conversion_data",
-        "@icu//:common",
+        # "@icu//:common",
     ],
 )
 
@@ -6276,10 +6276,10 @@ filegroup(
             "batch_kernels.*",
             "regex_full_match_op.cc",
             "regex_replace_op.cc",
-            "string_lower_op.cc",  # Requires ICU for unicode.
-            "string_upper_op.cc",  # Requires ICU for unicode.
+            # "string_lower_op.cc",  # Requires ICU for unicode.
+            # "string_upper_op.cc",  # Requires ICU for unicode.
             "unicode_ops.cc",
-            "unicode_script_op.cc",
+            # "unicode_script_op.cc",
             # Ops that are inherently incompatible with Android (e.g. tied to x86 platform).
             "mkl_*",
             "xsmm_*",
@@ -7642,7 +7642,7 @@ tf_kernel_library(
     srcs = ["unicode_script_op.cc"],
     deps = [
         "//tensorflow/core:framework",
-        "@icu//:common",
+        # "@icu//:common",
     ],
 )
 
