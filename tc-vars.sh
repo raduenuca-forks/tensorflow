@@ -2,6 +2,8 @@
 
 set -ex
 
+TENSORFLOW_VERSION="1.14.0"
+
 export OS=$(uname)
 if [ "${OS}" = "Linux" ]; then
     export DS_ROOT_TASK=$(/usr/bin/realpath "${HOME}")
@@ -187,7 +189,7 @@ else
 fi
 
 ### Define build targets that we will re-ues in sourcing scripts.
-BUILD_TARGET_LIB_CPP_API="//tensorflow:libtensorflow_cc.so"
+BUILD_TARGET_LIB_CPP_API="//tensorflow:tensorflow_cc"
 BUILD_TARGET_GRAPH_TRANSFORMS="//tensorflow/tools/graph_transforms:transform_graph"
 BUILD_TARGET_GRAPH_SUMMARIZE="//tensorflow/tools/graph_transforms:summarize_graph"
 BUILD_TARGET_GRAPH_BENCHMARK="//tensorflow/tools/benchmark:benchmark_model"
@@ -195,3 +197,11 @@ BUILD_TARGET_CONVERT_MMAP="//tensorflow/contrib/util:convert_graphdef_memmapped_
 BUILD_TARGET_TOCO="//tensorflow/lite/toco:toco"
 BUILD_TARGET_LITE_BENCHMARK="//tensorflow/lite/tools/benchmark:benchmark_model"
 BUILD_TARGET_LITE_LIB="//tensorflow/lite/experimental/c:libtensorflowlite_c.so"
+
+if [ "${OS}" = "Linux" ]; then
+    LIBTENSORFLOW_CC_BASENAME=libtensorflow_cc.so.${TENSORFLOW_VERSION}
+elif [ "${OS}" = "${TC_MSYS_VERSION}" ]; then
+    LIBTENSORFLOW_CC_BASENAME=tensorflow_cc.dll
+elif [ "${OS}" = "Darwin" ]; then
+    LIBTENSORFLOW_CC_BASENAME=libtensorflow.${TENSORFLOW_VERSION}.dylib
+fi
