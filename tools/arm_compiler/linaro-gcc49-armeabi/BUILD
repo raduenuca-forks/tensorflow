@@ -12,7 +12,7 @@ package(default_visibility = ["//visibility:public"])
 cc_toolchain_suite(
   name = "toolchain",
   toolchains = {
-    "armv7|gcc": ":cc-compiler-armv7",
+    "armv7": ":cc-compiler-armv7",
   },
 )
 
@@ -52,12 +52,12 @@ cc_toolchain(
   name = "cc-compiler-armv7",
   all_files = ":gcc_linux_all_files",
   compiler_files = ":gcc_linux_compiler_files",
-  cpu = "armv7",
+  toolchain_identifier = "gcc49_linaro_armhf",
   dwp_files = ":empty",
-  dynamic_runtime_libs = [":empty"],
+  dynamic_runtime_lib = ":empty",
   linker_files = ":gcc_linux_linker_files",
   objcopy_files = "//tools/arm_compiler/linaro-gcc49-armeabi/gcc:objcopy",
-  static_runtime_libs = [":empty"],
+  static_runtime_lib = ":empty",
   strip_files = "//tools/arm_compiler/linaro-gcc49-armeabi/gcc:strip",
   supports_param_files = 1,
   visibility = ["//visibility:public"],
