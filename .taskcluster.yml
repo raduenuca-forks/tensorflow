@@ -18,7 +18,7 @@ tasks:
           - pull_request.reopened
           - push
         branches:
-          - r1.13
+          - r1.14
 
     scopes: [
       "queue:create-task:lowest:{{ taskcluster.docker.provisionerId }}/deepspeech-worker",
