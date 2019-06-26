@@ -6,8 +6,8 @@ export OS=$(uname)
 if [ "${OS}" = "Linux" ]; then
     export DS_ROOT_TASK=$(/usr/bin/realpath "${HOME}")
 
-    BAZEL_URL=https://github.com/bazelbuild/bazel/releases/download/0.19.2/bazel-0.19.2-installer-linux-x86_64.sh
-    BAZEL_SHA256=42ba631103011594cdf5591ef07658a9e9a5d73c5ee98a9f09651ac4ac535d8c
+    BAZEL_URL=https://github.com/bazelbuild/bazel/releases/download/0.24.1/bazel-0.24.1-installer-linux-x86_64.sh
+    BAZEL_SHA256=cf8210e538c37f195298905301a1221ca5b6a5a6658ccd1c4369a867aa2339c3
 
     CUDA_URL=https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux
     CUDA_SHA256=92351f0e4346694d0fcb4ea1539856c9eb82060c25654463bfd8574ec35ee39a
@@ -52,8 +52,8 @@ elif [ "${OS}" = "${TC_MSYS_VERSION}" ]; then
     export TEMP=${TASKCLUSTER_TASK_DIR}/tmp/
     export TMP=${TASKCLUSTER_TASK_DIR}/tmp/
 
-    BAZEL_URL=https://github.com/bazelbuild/bazel/releases/download/0.19.2/bazel-0.19.2-windows-x86_64.exe
-    BAZEL_SHA256=9ee409cea41af14a92933c97f4e821de6c1fbfe648ae1b264b1bd519b8f92b37
+    BAZEL_URL=https://github.com/bazelbuild/bazel/releases/download/0.24.1/bazel-0.24.1-windows-x86_64.exe
+    BAZEL_SHA256=b34a63bbf57b0dfad409165773f34e2ccd41ed589e3f182c3712a910101c1cf6
 
     CUDA_INSTALL_DIRECTORY=$(cygpath 'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0')
 
@@ -71,8 +71,8 @@ elif [ "${OS}" = "Darwin" ]; then
 
     export DS_ROOT_TASK=${TASKCLUSTER_TASK_DIR}
 
-    BAZEL_URL=https://github.com/bazelbuild/bazel/releases/download/0.19.2/bazel-0.19.2-installer-darwin-x86_64.sh
-    BAZEL_SHA256=25ea85d4974ead87a7600e17b733bf8035a075fc8671c97e1c1f7dc8ff304231
+    BAZEL_URL=https://github.com/bazelbuild/bazel/releases/download/0.24.1/bazel-0.24.1-installer-darwin-x86_64.sh
+    BAZEL_SHA256=5fe570423945424a8c44b35c6d171fdde92e9ed90c3c321b83f2e380bcc966b9
 
     SHA_SUM="shasum -a 256 -c"
     WGET=wget
