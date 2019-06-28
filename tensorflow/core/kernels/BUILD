@@ -7673,6 +7673,26 @@ cc_library(
     ],
 )
 
+tf_kernel_library(
+    name = "deepspeech_cwise_ops",
+    srcs = [
+        "cwise_op_less.cc",
+        "cwise_op_minimum.cc",
+        "cwise_op_mul_1.cc",
+    ],
+    gpu_srcs = [
+        "cwise_op_gpu_less.cu.cc",
+        "cwise_op_gpu_minimum.cu.cc",
+        "cwise_op_gpu_mul.cu.cc",
+    ],
+    deps = [
+        ":cwise_lib",
+        "//tensorflow/core:framework",
+        "//tensorflow/core:lib",
+        "//third_party/eigen3",
+    ],
+)
+
 # Header-only version of cwise_lib for clients that want to use the cwise_ops
 # functionality in their own custom ops.
 cc_header_only_library(
