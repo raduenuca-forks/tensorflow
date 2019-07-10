@@ -11,7 +11,6 @@ cp ${DS_ROOT_TASK}/DeepSpeech/tf/bazel_*.log ${TASKCLUSTER_ARTIFACTS}
 OUTPUT_ROOT="${DS_ROOT_TASK}/DeepSpeech/tf/bazel-bin"
 
 for output_bin in                                                            \
-    "tensorflow/${LIBTENSORFLOW_CC_BASENAME}"                                \
     tensorflow/lite/experimental/c/libtensorflowlite_c.so                    \
     tensorflow/tools/graph_transforms/transform_graph                        \
     tensorflow/tools/graph_transforms/summarize_graph                        \

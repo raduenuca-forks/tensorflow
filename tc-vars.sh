@@ -2,8 +2,6 @@
 
 set -ex
 
-TENSORFLOW_VERSION="1.14.0"
-
 export OS=$(uname)
 if [ "${OS}" = "Linux" ]; then
     export DS_ROOT_TASK=$(/usr/bin/realpath "${HOME}")
@@ -166,7 +164,7 @@ NVCC_COMPUTE="3.5"
 
 ### Define build parameters/env variables that we will re-ues in sourcing scripts.
 if [ "${OS}" = "${TC_MSYS_VERSION}" ]; then
-    TF_CUDA_FLAGS="TF_CUDA_CLANG=0 TF_CUDA_VERSION=10.0 TF_CUDNN_VERSION=7.5.0 CUDNN_INSTALL_PATH=\"${CUDA_INSTALL_DIRECTORY}\" TF_CUDA_PATHS=\"${CUDA_INSTALL_DIRECTORY}\" TF_ TF_CUDA_COMPUTE_CAPABILITIES=\"${NVCC_COMPUTE}\""
+    TF_CUDA_FLAGS="TF_CUDA_CLANG=0 TF_CUDA_VERSION=10.0 TF_CUDNN_VERSION=7.5.0 CUDNN_INSTALL_PATH=\"${CUDA_INSTALL_DIRECTORY}\" TF_CUDA_PATHS=\"${CUDA_INSTALL_DIRECTORY}\" TF_CUDA_COMPUTE_CAPABILITIES=\"${NVCC_COMPUTE}\""
 else
     TF_CUDA_FLAGS="TF_CUDA_CLANG=0 TF_CUDA_VERSION=10.0 TF_CUDNN_VERSION=7.5.0 CUDNN_INSTALL_PATH=\"${DS_ROOT_TASK}/DeepSpeech/CUDA\" TF_CUDA_PATHS=\"${DS_ROOT_TASK}/DeepSpeech/CUDA\" TF_NCCL_VERSION=2.3 TF_CUDA_COMPUTE_CAPABILITIES=\"${NVCC_COMPUTE}\""
 fi
@@ -197,11 +195,3 @@ BUILD_TARGET_CONVERT_MMAP="//tensorflow/contrib/util:convert_graphdef_memmapped_
 BUILD_TARGET_TOCO="//tensorflow/lite/toco:toco"
 BUILD_TARGET_LITE_BENCHMARK="//tensorflow/lite/tools/benchmark:benchmark_model"
 BUILD_TARGET_LITE_LIB="//tensorflow/lite/experimental/c:libtensorflowlite_c.so"
-
-if [ "${OS}" = "Linux" ]; then
-    LIBTENSORFLOW_CC_BASENAME=libtensorflow_cc.so.${TENSORFLOW_VERSION}
-elif [ "${OS}" = "${TC_MSYS_VERSION}" ]; then
-    LIBTENSORFLOW_CC_BASENAME=tensorflow_cc.dll
-elif [ "${OS}" = "Darwin" ]; then
-    LIBTENSORFLOW_CC_BASENAME=libtensorflow.${TENSORFLOW_VERSION}.dylib
-fi
