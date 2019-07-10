@@ -958,6 +958,8 @@ tf_cuda_library(
         "util/gpu_kernel_helper.h",
         "util/guarded_philox_random.h",
         "util/mirror_pad_mode.h",
+        "util/memmapped_file_system.h",
+        "util/memmapped_file_system_writer.h",
         "util/padding.h",
         "util/port.h",
         "util/ptr_util.h",
@@ -978,13 +980,7 @@ tf_cuda_library(
         "util/matmul_autotune.h",
         "util/util.h",
         "util/work_sharder.h",
-    ] + select({
-        "//tensorflow:windows": [],
-        "//conditions:default": [
-            "util/memmapped_file_system.h",
-            "util/memmapped_file_system_writer.h",
-        ],
-    }) + if_mkl([
+    ] + if_mkl([
         "util/mkl_util.h",
     ]),
     visibility = ["//visibility:public"],
@@ -2777,18 +2773,10 @@ FRAMEWORK_INTERNAL_PRIVATE_HEADERS = [
         "framework/fake_input.*",
         "framework/op_gen_lib.*",
         "framework/reader_base.*",
-        "util/memmapped_file_system.*",
-        "util/memmapped_file_system_writer.*",
         "util/session_message.*",
         "util/version_info.cc",
     ],
-) + select({
-    "//tensorflow:windows": [],
-    "//conditions:default": [
-        "util/memmapped_file_system.h",
-        "util/memmapped_file_system_writer.h",
-    ],
-})
+)
 
 FRAMEWORK_INTERNAL_PUBLIC_HEADERS = [
     "framework/model.h",  # only needed for tests
@@ -2881,19 +2869,11 @@ tf_cuda_library(
             "framework/op_gen_lib.*",
             "framework/reader_base.*",
             "framework/resource_handle.cc",
-            "util/memmapped_file_system.*",
-            "util/memmapped_file_system_writer.*",
             "util/stats_calculator.*",
             "util/version_info.cc",
             "util/env_var.cc",
         ],
-    ) + select({
-        "//tensorflow:windows": [],
-        "//conditions:default": [
-            "util/memmapped_file_system.cc",
-            "util/memmapped_file_system_writer.cc",
-        ],
-    }),
+    ),
     hdrs = FRAMEWORK_INTERNAL_PUBLIC_HEADERS,
     copts = tf_copts(),
     linkopts = select({
