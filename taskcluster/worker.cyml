@@ -1,11 +1,11 @@
 taskcluster:
   schedulerId: taskcluster-github
   docker:
-    provisionerId: aws-provisioner-v1
-    workerType: deepspeech-worker
+    provisionerId: proj-deepspeech
+    workerType: ci
   generic:
-    provisionerId: deepspeech-provisioner
+    provisionerId: proj-deepspeech
     workerType: ds-macos-heavy
   win:
-    provisionerId: aws-provisioner-v1
-    workerType: deepspeech-win-b
+    provisionerId: proj-deepspeech
+    workerType: win-b

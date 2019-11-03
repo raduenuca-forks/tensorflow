@@ -7,8 +7,8 @@ metadata:
   owner: "{{ event.head.user.email }}" # the user who sent the pr/push e-mail will be inserted here
   source: "{{ event.head.repo.url }}"  # the repo where the pr came from will be inserted here
 tasks:
-  - provisionerId: "{{ taskcluster.docker.provisionerId }}"
-    workerType: "deepspeech-worker"
+  - provisionerId: "proj-deepspeech"
+    workerType: "ci"
     extra:
       github:
         env: true
@@ -21,9 +21,9 @@ tasks:
           - r1.14
 
     scopes: [
-      "queue:create-task:lowest:{{ taskcluster.docker.provisionerId }}/deepspeech-worker",
-      "queue:create-task:lowest:{{ taskcluster.docker.provisionerId }}/deepspeech-win-b",
-      "queue:create-task:lowest:deepspeech-provisioner/ds-macos-heavy",
+      "queue:create-task:lowest:proj-deepspeech/ci",
+      "queue:create-task:lowest:proj-deepspeech/win-b",
+      "queue:create-task:lowest:proj-deepspeech/ds-macos-heavy",
       "queue:route:index.project.deepspeech.*",
       "queue:scheduler-id:taskcluster-github"
     ]
