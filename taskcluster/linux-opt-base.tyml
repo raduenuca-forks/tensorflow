@@ -27,7 +27,7 @@ routes:
 
 payload:
   maxRunTime: { $eval: to_int(build.maxRunTime) }
-  image: "ubuntu:14.04"
+  image: "ubuntu:16.04"
 
   command:
     - "/bin/bash"
