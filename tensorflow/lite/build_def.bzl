@@ -17,6 +17,7 @@ def tflite_copts():
         ],
         str(Label("//tensorflow:android_arm")): [
             "-mfpu=neon",
+            "-mfloat-abi=softfp",
             "-O3",
         ],
         str(Label("//tensorflow:ios_x86_64")): [

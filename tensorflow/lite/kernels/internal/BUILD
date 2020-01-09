@@ -33,6 +33,10 @@ NEON_FLAGS_IF_APPLICABLE = select({
         "-O3",
         "-mfpu=neon",
     ],
+    ":rpi3": [
+        "-O3",
+        "-mfpu=neon",
+    ],
     "//conditions:default": [
         "-O3",
     ],
@@ -87,6 +91,13 @@ config_setting(
     name = "armv7a",
     values = {
         "cpu": "armv7a",
+    },
+)
+
+config_setting(
+    name = "rpi3",
+    define_values = {
+        "target_system": "rpi3"
     },
 )
 
@@ -626,6 +637,9 @@ cc_library(
             ":neon_tensor_utils",
         ],
         ":armv7a": [
+            ":neon_tensor_utils",
+        ],
+        ":rpi3": [
             ":neon_tensor_utils",
         ],
         ":haswell": [

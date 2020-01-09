@@ -5,6 +5,7 @@ load(
     "//tensorflow:tensorflow.bzl",
     "cc_header_only_library",
     "if_not_windows",
+    "if_windows",
     "tf_cc_test",
     "tf_copts",
 )
@@ -53,6 +54,7 @@ cc_library(
         "//tensorflow/core:proto_text",
         "//tensorflow/core:protos_all_cc",
     ],
+    linkopts = if_windows(["-DEFAULTLIB:ws2_32.lib"]),
 )
 
 cc_header_only_library(

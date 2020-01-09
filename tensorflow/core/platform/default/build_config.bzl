@@ -714,6 +714,8 @@ def tf_additional_cloud_op_deps():
 def tf_additional_cloud_kernel_deps():
     return select({
         "//tensorflow:android": [],
+        "//tensorflow:rpi3": [],
+        "//tensorflow:rpi3-armv8": [],
         "//tensorflow:ios": [],
         "//tensorflow:linux_s390x": [],
         "//tensorflow:windows": [],
