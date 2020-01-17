@@ -102,6 +102,13 @@ config_setting(
 )
 
 config_setting(
+    name = "rpi3-armv8",
+    define_values = {
+        "target_system": "rpi3-armv8"
+    },
+)
+
+config_setting(
     name = "armeabi-v7a",
     values = {
         "cpu": "armeabi-v7a",
@@ -640,6 +647,9 @@ cc_library(
             ":neon_tensor_utils",
         ],
         ":rpi3": [
+            ":neon_tensor_utils",
+        ],
+        ":rpi3-armv8": [
             ":neon_tensor_utils",
         ],
         ":haswell": [

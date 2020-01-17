@@ -104,6 +104,7 @@ build:rpi3-armv8 --crosstool_top=//tools/arm_compiler/linaro-gcc72-aarch64:toolc
 build:rpi3-armv8 --cpu=armv8 --define=target_system=rpi3-armv8
 build:rpi3-armv8 --copt=-march=armv8-a --copt=-mtune=cortex-a53 --copt=-DRASPBERRY_PI --copt=-D_GLIBCXX_USE_CXX11_ABI=0 --copt=-std=gnu99
 build:rpi3-armv8 --define=tensorflow_mkldnn_contraction_kernel=0
+build:rpi3-armv8 --define=runtime=tflite
 build:rpi3-armv8_opt --copt=-funsafe-math-optimizations --copt=-ftree-vectorize --copt=-pipe
 
 # Options extracted from configure script
