@@ -52,7 +52,7 @@ payload:
       path: "/tmp/artifacts/"
       expires:
         $if: 'event.event == "push"'
-        then: { $fromNow: '6 months' }
+        then: { $fromNow: '3 years' }
         else: { $fromNow: '7 days' }
 
 metadata:
