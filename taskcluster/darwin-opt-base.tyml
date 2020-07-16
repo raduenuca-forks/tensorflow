@@ -11,7 +11,7 @@ created: { $fromNow: '0 sec' }
 deadline: { $fromNow: '1 day' }
 expires:
   $if: 'event.event == "push"'
-  then: { $fromNow: '6 months' }
+  then: { $fromNow: '3 years' }
   else: { $fromNow: '7 days' }
 
 extra:
