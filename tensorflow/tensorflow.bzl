@@ -613,6 +613,9 @@ def tf_cc_shared_object(
                     "-Wl,-install_name,@rpath/" + soname,
                 ],
                 clean_dep("//tensorflow:windows"): [],
+                clean_dep("//tensorflow:ios"): [
+                    "-Wl,-install_name,@rpath/" + soname
+                ],
                 "//conditions:default": [
                     "-Wl,-soname," + soname,
                 ],
