@@ -380,7 +380,6 @@ def _impl(ctx):
     			    "-Lexternal/LinaroArmGcc72/arm-linux-gnueabihf/libc/lib",
     			    "-Lexternal/LinaroArmGcc72/arm-linux-gnueabihf/libc/usr/lib",
     			    "-Bexternal/LinaroArmGcc72/arm-linux-gnueabihf/bin",
-			    "-shared",
                         ],
                     ),
                 ],

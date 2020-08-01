@@ -380,7 +380,6 @@ def _impl(ctx):
     			    "-Lexternal/LinaroAarch64Gcc72/aarch64-linux-gnu/libc/lib",
     			    "-Lexternal/LinaroAarch64Gcc72/aarch64-linux-gnu/libc/usr/lib",
     			    "-Bexternal/LinaroAarch64Gcc72/aarch64-linux-gnu/bin",
-			    "-shared",
                         ],
                     ),
                 ],
