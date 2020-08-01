@@ -29,6 +29,7 @@ tflite_cc_shared_object(
         "//conditions:default": [
             "-z defs",
             "-Wl,--version-script,$(location //tensorflow/lite/c:version_script.lds)",
+            "-shared",
         ],
     }),
     per_os_targets = True,
