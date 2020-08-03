@@ -150,6 +150,21 @@ def _impl(ctx):
         ],
     )
 
+    shared_flag_feature = feature(
+        name = "shared_flag",
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.cpp_link_dynamic_library,
+                    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                    ACTION_NAMES.lto_index_for_dynamic_library,
+                    ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
+                ],
+                flag_groups = [flag_group(flags = ["-shared"])],
+            ),
+        ],
+    )
+
     sysroot_feature = feature(
         name = "sysroot",
         enabled = True,
@@ -380,7 +395,6 @@ def _impl(ctx):
     			    "-Lexternal/LinaroAarch64Gcc72/aarch64-linux-gnu/libc/lib",
     			    "-Lexternal/LinaroAarch64Gcc72/aarch64-linux-gnu/libc/usr/lib",
     			    "-Bexternal/LinaroAarch64Gcc72/aarch64-linux-gnu/bin",
-			    "-shared",
                         ],
                     ),
                 ],
@@ -407,6 +421,7 @@ def _impl(ctx):
 	dbg_feature,
 	user_compile_flags_feature,
 	user_link_flags_feature,
+	shared_flag_feature,
 	sysroot_feature,
 	unfiltered_compile_flags_feature,
     ]
