@@ -846,14 +846,14 @@ def _find_libs(repository_ctx, cuda_config):
             repository_ctx,
             cpu_value,
             cuda_config.cuda_toolkit_path,
-            cuda_config.cuda_version,
+            "11.0",
         ),
         "cudart_static": _find_cuda_lib(
             "cudart_static",
             repository_ctx,
             cpu_value,
             cuda_config.cuda_toolkit_path,
-            cuda_config.cuda_version,
+            "11.0",
             static = True,
         ),
         "cublas": _find_cuda_lib(
